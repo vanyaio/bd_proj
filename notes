@@ -1,0 +1,3 @@
+psql -f a.sql -d firstdb
+psql firstdb
+
