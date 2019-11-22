@@ -17,7 +17,8 @@ def get_rand_string(len):
 def get_districts():
     districts = []
     num = 10
-    for i in num:
+    for i in range(num):
+        district = {}
         district['name'] = get_rand_string(10)
         district['id'] = i+1
         districts.append(district)
@@ -26,9 +27,10 @@ def get_districts():
 def get_schools(districts):
     schools = []
     num = 30
-    for i in num:
+    for i in range(num):
+        school = {}
         school['id'] = i+1
-        district = districts[random.randint(0,len(districts)-1]
+        district = districts[random.randint(0,len(districts)-1)]
         school['district_id'] = district['id']
         school['name'] = get_rand_string(10)
         schools.append(school)
@@ -37,22 +39,24 @@ def get_schools(districts):
 def get_classrooms(schools):
     classrooms = []
     num = 100
-    for i in num:
+    for i in range(num):
+        classroom = {}
         classroom['id'] = i+1
-        school = schools[random.randint(0,len(schools)-1]
+        school = schools[random.randint(0,len(schools)-1)]
         classroom['school_id'] = school['id']
         classroom['capacity'] = random.randint(5, 20)
-        classrooms.append(school)
+        classrooms.append(classroom)
     return classrooms
 
 def get_students(schools):
     students = []
     num = 30
-    for i in num:
+    for i in range(num):
+        student = {}
         student['id'] = i+1
         student['first_name'] = get_rand_string(10) 
         student['last_name'] = get_rand_string(10) 
-        school = schools[random.randint(0,len(schools)-1]
+        school = schools[random.randint(0,len(schools)-1)]
         student['school_id'] = school['id']
         students.append(student)
     return students
@@ -60,17 +64,19 @@ def get_students(schools):
 def get_subjs():
     subjs = []
     num = 10
-    for i in num:
+    for i in range(num):
+        subj = {}
         subj['description'] = get_rand_string(40)
         subj['id'] = i+1
         subj['min_grade'] = random.randint(0, 20)
-        subj.append(subj)
+        subjs.append(subj)
     return subjs
 
 def get_req_subjs(subjs):
     req_subjs = []
     for subj in subjs:
         if (random.randint(0, 2) == 0):
+            req_subj = {}
             req_subj['subj_id'] = subj['id']
             req_subjs.append(req_subj)
     return req_subjs
@@ -80,6 +86,7 @@ def get_student_subjs(students, subjs, req_subjs):
     for student in students:
         for subj in subjs:
             if (random.randint(0, 4) != 0):
+                student_subj = {}
                 student_subj['student_id'] = student['id']
                 student_subj['subj_id'] = subj['id']
                 student_subjs.append(student_subj)
@@ -88,15 +95,20 @@ def get_student_subjs(students, subjs, req_subjs):
 def get_exams(subjs):
     exams = []
     for subj in subjs:
-       exam1['subj_id'] = subj['id']
-       exam1['day'] = get_rand_day()
-       exams.append(exam1)
-       exam2['subj_id'] = subj['id']
-       exam2['day'] = get_rand_day()
-       exams.append(exam2)
+        exam1 = {}
+        exam2 = {}
+        exam1['subj_id'] = subj['id']
+        exam1['day'] = get_rand_day()
+        exam1['id'] = len(exams) + 1  
+        exams.append(exam1)
+        exam2['subj_id'] = subj['id']
+        exam2['day'] = get_rand_day()
+        exam2['id'] = len(exams) + 1  
+        exams.append(exam2)
     return exams
 
 def fill_data():
+    tables_create()
     districts = get_districts()
     schools = get_schools(districts)
     classrooms = get_classrooms(schools)
@@ -156,7 +168,7 @@ def fill_data():
         district_add_raw(district['name'])
 
     for school in schools:
-        school_add_raw(school['district_id'])
+        school_add_raw(school['district_id'], school['name'])
 
     for classroom in classrooms:
         classroom_add_raw(classroom['school_id'], classroom['capacity'])
@@ -167,7 +179,7 @@ def fill_data():
                         student['school_id'])
 
     for subj in subjs:
-        subj_add_raw(subj['desciption'], subj['min_grade'])
+        subj_add_raw(subj['description'], subj['min_grade'])
 
     for student_subj in student_subjs:
         student_subj_add_raw(student_subj['student_id'],
@@ -183,12 +195,12 @@ def fill_data():
         grade_add_raw(grade['student_id'], grade['exam_id'],
                       grade['grade'])
 
-    for rer in rers:
-        rer_add_raw(rer['description'])
+    #  for rer in rers:
+        #  rer_add_raw(rer['description'])
 
-    for student_rer in student_rers:
-        student_rer_add_raw(student_rer['student_id'],
-                            student_rer['rer_id'])
+    #  for student_rer in student_rers:
+        #  student_rer_add_raw(student_rer['student_id'],
+                            #  student_rer['rer_id'])
 
     for exam_distrib in exam_distribs:
         exam_distrib_add_raw(exam_distrib['classroom_id'],
@@ -197,3 +209,6 @@ def fill_data():
     for student_distrib in student_distribs:
         student_distrib_add_raw(student_distrib['student_id'],
                                 student_distrib['exam_distrib_id'])
+
+if __name__ == "__main__":
+    fill_data()

@@ -37,7 +37,7 @@ def classroom_add_raw(school_id, capacity):
 def student_add_raw(first_name, last_name, school_id):
     cur = con.cursor()
     cur.execute(f'''
-    insert into school (first_name, last_name, school_id)
+    insert into student (first_name, last_name, school_id)
     values ('{first_name}', '{last_name}', '{school_id}');
     ''')
     con.commit()

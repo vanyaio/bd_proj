@@ -10,7 +10,7 @@ initdb postgres
 pg_ctl -D /usr/local/var/postgres start
 createdb mybd
 psql mybd
-psql -f exam.sql -d postgres
+psql -f del_exam.sql -d postgres
 \dt - show tables
 
 
