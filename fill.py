@@ -1,6 +1,7 @@
 import random
 import string
 from datetime import date
+from datetime import datetime
 import random
 from exam import *
 
@@ -131,23 +132,24 @@ def fill_data():
     student_distribs = []
     grades = []
     for student in students:
-        student_subjs = {}
+        this_student_subjs = []
         for i in student_subjs:
             if (i['student_id'] == student['id']):
-                student_subjs = i
-                break
+                this_student_subjs.append(i['subj_id'])
 
-        student_distrib = {}
-        for subj in student_subjs:
+        for subj_id in this_student_subjs:
             subj_exam = {}
             dec31 = datetime.strptime('Dec 31 2019', '%b %d %Y').date()
             subj_exam['day'] = dec31
             for exam in exams:
-                if (exam['subj_id'] == subj['id'] and \
+                #  if (exam['subj_id'] == subj['id'] and \
+                    #  exam['day'] <= subj_exam['day']):
+                if (exam['subj_id'] == subj_id and \
                     exam['day'] <= subj_exam['day']):
                     subj_exam = exam
 
             exam_distrib = {}
+            student_distrib = {}
             for i in exam_distribs:
                 if (i['exam_id'] == subj_exam['id']):
                     student_distrib['student_id'] = student['id']
@@ -181,15 +183,15 @@ def fill_data():
     for subj in subjs:
         subj_add_raw(subj['description'], subj['min_grade'])
 
-    for student_subj in student_subjs:
-        student_subj_add_raw(student_subj['student_id'],
-                             student_subj['subj_id'])
-
     for req_subj in req_subjs:
         req_subj_add_raw(req_subj['subj_id'])
 
     for exam in exams:
         exam_add_raw(exam['subj_id'], exam['day'])
+
+    for student_subj in student_subjs:
+        student_subj_add_raw(student_subj['student_id'],
+                             student_subj['subj_id'])
 
     for grade in grades:
         grade_add_raw(grade['student_id'], grade['exam_id'],
