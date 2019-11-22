@@ -1,3 +1,20 @@
 psql -f a.sql -d firstdb
 psql firstdb
 
+group by, oreder by, union, not in, having, distinct
+
+just a random queries:
+
+
+initdb postgres
+pg_ctl -D /usr/local/var/postgres start
+createdb mybd
+psql mybd
+psql -f exam.sql -d postgres
+\dt - show tables
+
+
+psql -f a.sql -d postgres
+
+
+insert into t1 (id) values (default)
