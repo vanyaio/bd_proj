@@ -90,11 +90,11 @@ def rer_add_raw(description):
     ''')
     con.commit()
 
-def student_rer_add_raw(student_id, rer_id):
+def student_rer_add_raw(student_id, rer_id, subj_id):
     cur = con.cursor()
     cur.execute(f'''
-    insert into student_rer (student_id, rer_id)
-    values ('{student_id}', '{rer_id}');
+    insert into student_rer (student_id, rer_id, subj_id)
+    values ('{student_id}', '{rer_id}', '{subj_id}');
     ''')
     con.commit()
 

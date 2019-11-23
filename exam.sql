@@ -59,8 +59,10 @@ create table rer (
 );
 
 create table student_rer (
-	student_id int primary key references student(id),
-	rer_id int references rer(id)
+	student_id int references student(id),
+	subj_id int references subj(id),
+	rer_id int references rer(id),
+	primary key (student_id, subj_id)
 );
 
 create table exam_distrib (
