@@ -158,7 +158,6 @@ def fill_data(from_conf):
         exams = get_exams(subjs)
         rers = get_rers()
 
-        #  grades, rers, student_rers, exam_distribs, student_distrib
         exam_distribs = []
         for classroom in classrooms:
             for exam in exams:
@@ -178,6 +177,10 @@ def fill_data(from_conf):
                     this_student_subjs.append(i['subj_id'])
 
             for subj_id in this_student_subjs:
+                #skip some
+                if (random.randint(0, 3) == 1):
+                    break
+
                 subj_exam1 = {}
                 subj_exam2 = {}
                 for exam in exams:

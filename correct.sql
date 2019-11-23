@@ -44,3 +44,336 @@ where exam_distrib_id = exam_distrib.id) as t1
 where student.id = t1.student_id) as t2
 where classroom.id = t2.classroom_id
 	  and classroom.school_id = t2.school_id;
+
+
+
+1st exams t00:
+select exam.id as exam_id, exam.subj_id, exam.day
+from exam,
+(select subj_id, min(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day;
+
+reserved_exams t0:
+select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day;
+
+
+student->exam_id t1:
+select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id;
+
+
+student->exam_id->subj_id t2:
+select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id;
+
+student on reserved exam t3:
+select t2.student_id, t2.exam_id, t2.subj_id from
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id) as t2,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where
+t0.id = t2.exam_id;
+
+student on reserved exam with reason t4:
+select t3.student_id, t3.subj_id, student_rer.rer_id
+from
+(select t2.student_id, t2.exam_id, t2.subj_id from
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id) as t2,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where
+t0.id = t2.exam_id) as t3
+left join student_rer
+on t3.student_id=student_rer.student_id and
+   t3.subj_id=student_rer.subj_id;
+
+student with no rsr on rsrv exam t5: 
+select t4.student_id, t4.subj_id from
+(select t3.student_id, t3.subj_id, student_rer.rer_id
+from
+(select t2.student_id, t2.exam_id, t2.subj_id from
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id) as t2,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where
+t0.id = t2.exam_id) as t3
+left join student_rer
+on t3.student_id=student_rer.student_id and
+   t3.subj_id=student_rer.subj_id) as t4
+where t4.rer_id is NULL; 
+
+student grades t6:
+select grade.student_id, exam.subj_id, grade.grade, exam.id as exam_id
+from
+grade, exam
+where
+grade.exam_id = exam.id;
+
+student grades for the 1st exam t7:
+select t6.student_id, t6.subj_id, t6.grade
+from
+(select grade.student_id, exam.subj_id, grade.grade, exam.id as exam_id
+from
+grade, exam
+where
+grade.exam_id = exam.id) as t6,
+(select exam.id as exam_id, exam.subj_id, exam.day
+from exam,
+(select subj_id, min(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t00
+where
+t6.exam_id = t00.exam_id;
+
+student with small grades t8:
+select t7.student_id, t7.subj_id, t7.grade, subj.min_grade
+from
+subj,
+(select t6.student_id, t6.subj_id, t6.grade
+from
+(select grade.student_id, exam.subj_id, grade.grade, exam.id as exam_id
+from
+grade, exam
+where
+grade.exam_id = exam.id) as t6,
+(select exam.id as exam_id, exam.subj_id, exam.day
+from exam,
+(select subj_id, min(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t00
+where
+t6.exam_id = t00.exam_id) as t7
+where t7.subj_id = subj.id and subj.min_grade > t7.grade;
+
+
+student not allowed to be rsrv exam t9:
+
+select t4.student_id, t4.subj_id from
+(select t3.student_id, t3.subj_id, student_rer.rer_id
+from
+(select t2.student_id, t2.exam_id, t2.subj_id from
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id) as t2,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where
+t0.id = t2.exam_id) as t3
+left join student_rer
+on t3.student_id=student_rer.student_id and
+   t3.subj_id=student_rer.subj_id) as t4
+where t4.rer_id is NULL
+
+except
+
+(
+select t4.student_id, t4.subj_id from
+(select t3.student_id, t3.subj_id, student_rer.rer_id
+from
+(select t2.student_id, t2.exam_id, t2.subj_id from
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id) as t2,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where
+t0.id = t2.exam_id) as t3
+left join student_rer
+on t3.student_id=student_rer.student_id and
+   t3.subj_id=student_rer.subj_id) as t4
+where t4.rer_id is NULL
+
+intersect
+
+select t7.student_id, t7.subj_id
+from
+subj,
+(select t6.student_id, t6.subj_id, t6.grade
+from
+(select grade.student_id, exam.subj_id, grade.grade, exam.id as exam_id
+from
+grade, exam
+where
+grade.exam_id = exam.id) as t6,
+(select exam.id as exam_id, exam.subj_id, exam.day
+from exam,
+(select subj_id, min(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t00
+where
+t6.exam_id = t00.exam_id) as t7
+where t7.subj_id = subj.id and subj.min_grade > t7.grade
+);
+
+
+students with rer and their second exam id r0:
+select student_rer.student_id,student_rer.subj_id,t0.id as exam_id from
+student_rer,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where student_rer.subj_id=t0.subj_id;
+
+
+student with rer but no assigned to any second exam r1:
+select r0.student_id,r0.subj_id,r0.exam_id from
+(select student_rer.student_id,student_rer.subj_id,t0.id as exam_id from
+student_rer,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where student_rer.subj_id=t0.subj_id)
+as r0
+left join
+(select t2.student_id, t2.exam_id, t2.subj_id from
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id) as t2,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where
+t0.id = t2.exam_id)
+as t3
+on r0.student_id=t3.student_id and r0.subj_id=t3.subj_id
+where t3.student_id is NULL;
+
+
+students with small grades no assigned to second exam r2:
+/*
+ * select t8.student_id,t8.subj_id,t8.grade,t8.min_grade
+ */
+select t8.student_id,t8.subj_id,t8.grade,t8.min_grade,t3.exam_id 
+from
+(select t7.student_id, t7.subj_id, t7.grade, subj.min_grade
+from
+subj,
+(select t6.student_id, t6.subj_id, t6.grade
+from
+(select grade.student_id, exam.subj_id, grade.grade, exam.id as exam_id
+from
+grade, exam
+where
+grade.exam_id = exam.id) as t6,
+(select exam.id as exam_id, exam.subj_id, exam.day
+from exam,
+(select subj_id, min(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t00
+where
+t6.exam_id = t00.exam_id) as t7
+where t7.subj_id = subj.id and subj.min_grade > t7.grade)
+as t8
+left join
+(select t2.student_id, t2.exam_id, t2.subj_id from
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id) as t2,
+(select exam.id, exam.subj_id, exam.day
+from exam,
+(select subj_id, max(day) as day
+from exam
+group by subj_id order by subj_id) as t1
+where exam.day = t1.day) as t0
+where
+t0.id = t2.exam_id)
+as t3
+on t8.student_id=t3.student_id and t8.subj_id=t3.subj_id
+where t3.exam_id is NULL; 
