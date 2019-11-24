@@ -3,7 +3,7 @@ import string
 from datetime import date
 from datetime import datetime
 import random
-from exam import *
+from db_queries import *
 import yaml
 
 def get_rand_day():
@@ -56,7 +56,7 @@ def get_classrooms(schools):
         classroom['id'] = i+1
         school = schools[random.randint(0,len(schools)-1)]
         classroom['school_id'] = school['id']
-        classroom['capacity'] = random.randint(5, 20)
+        classroom['capacity'] = random.randint(1, 2)
         classrooms.append(classroom)
     return classrooms
 
@@ -323,3 +323,11 @@ if __name__ == "__main__":
     #  tables_create()
     fill_data(from_conf = False)
     #  fill_data(from_conf = True)
+    students_not_allowed_for_rsrv()
+    students_with_rer_not_assigned_rsrv()
+    students_with_low_grades_not_assigned_rsrv()
+    not_assigned_to_1st_exam_of_selected_subj()
+    not_all_req_subjs_selected()
+    not_their_district()
+    in_classroom_of_their_school()
+    overfilled_classrooms()

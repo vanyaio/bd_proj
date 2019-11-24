@@ -484,7 +484,7 @@ student_distrib.exam_distrib_id = exam_distrib.id
 group by exam_id, classroom_id;
 
 count is more than capacity s2:
-select s1.classroom_id, s1.cnt, classroom.capacity
+select s1.classroom_id, s1.exam_id, s1.cnt, classroom.capacity
 from
 (select exam_id,classroom_id,count(student_id) as cnt from
 student_distrib,exam_distrib where
