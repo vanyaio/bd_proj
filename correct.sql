@@ -474,3 +474,23 @@ as r6,student,classroom
 where
 r6.student_id=student.id and classroom.id=r6.classroom_id
 and student.school_id=classroom.school_id;
+
+
+
+s1:
+select exam_id,classroom_id,count(student_id) as cnt from
+student_distrib,exam_distrib where
+student_distrib.exam_distrib_id = exam_distrib.id
+group by exam_id, classroom_id;
+
+count is more than capacity s2:
+select s1.classroom_id, s1.cnt, classroom.capacity
+from
+(select exam_id,classroom_id,count(student_id) as cnt from
+student_distrib,exam_distrib where
+student_distrib.exam_distrib_id = exam_distrib.id
+group by exam_id, classroom_id)
+as s1,
+classroom
+where s1.classroom_id = classroom.id and
+	  s1.cnt > classroom.capacity;
