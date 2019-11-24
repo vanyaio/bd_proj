@@ -376,4 +376,101 @@ where
 t0.id = t2.exam_id)
 as t3
 on t8.student_id=t3.student_id and t8.subj_id=t3.subj_id
-where t3.exam_id is NULL; 
+where t3.exam_id is NULL;
+
+
+student not assigned to 1st exam for some of chosen subj r3;
+select student_subj.student_id,student_subj.subj_id from
+student_subj
+left join
+(select t1.student_id, t1.exam_id, exam.subj_id
+from
+exam,
+(select student_distrib.student_id, exam_distrib.exam_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id) as t1
+where
+exam.id = t1.exam_id)
+as t2
+on t2.subj_id = student_subj.subj_id and
+   t2.student_id = student_subj.student_id
+where
+	t2.exam_id is NULL
+order by student_subj.student_id;
+
+
+students with num of choseh req subj r4: 
+select student_subj.student_id,count(student_subj.subj_id) from
+student_subj,req_subj
+where student_subj.subj_id = req_subj.subj_id
+group by student_id
+order by student_id;
+
+students with not all req subjs choosen r5:
+select r4.student_id from
+(select student_subj.student_id,count(student_subj.subj_id) from
+student_subj,req_subj
+where student_subj.subj_id = req_subj.subj_id
+group by student_id
+order by student_id)
+as r4
+where r4.count <> (select count(*) from req_subj);
+
+
+
+student->exam_id->classroom_id r6:
+select student_distrib.student_id, exam_distrib.exam_id,
+	   exam_distrib.classroom_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id;
+
+student->district r7:
+select student.id,school.district_id 
+from student,school where
+student.school_id = school.id;
+
+classroom->district r8:
+select classroom.id,school.district_id 
+from classroom,school where
+classroom.school_id = school.id;
+
+students in classrooms of not theirs districts r9:
+select r6.student_id,r6.classroom_id,r7.district_id as sdi,
+	   r8.district_id as cdi,r6.exam_id
+from
+(select student_distrib.student_id, exam_distrib.exam_id,
+	   exam_distrib.classroom_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id)
+as r6,
+(select student.id,school.district_id 
+from student,school where
+student.school_id = school.id)
+as r7,
+(select classroom.id,school.district_id 
+from classroom,school where
+classroom.school_id = school.id)
+as r8
+where r6.student_id=r7.id and
+	  r6.classroom_id=r8.id and 
+	  r7.district_id <> r8.district_id;
+
+
+students in classrooms of their school r10:
+select student.id as student_id, classroom.id as classroom_id,
+	   student.school_id as ssi,
+	   classroom.school_id as csi,
+	   r6.exam_id
+from
+(select student_distrib.student_id, exam_distrib.exam_id,
+	   exam_distrib.classroom_id
+from
+student_distrib, exam_distrib
+where student_distrib.exam_distrib_id=exam_distrib.id)
+as r6,student,classroom
+where
+r6.student_id=student.id and classroom.id=r6.classroom_id
+and student.school_id=classroom.school_id;
