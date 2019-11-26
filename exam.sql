@@ -12,7 +12,7 @@ create table school (
 create table classroom (
 	id serial primary key,
 	school_id int references school(id),
-	capacity int check (capacity > 0)
+	capacity int check (capacity >= 0)
 );
 
 create table student (

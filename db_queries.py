@@ -334,6 +334,11 @@ order by student_subj.student_id;
 def not_all_req_subjs_selected(): 
     cur = con.cursor()
     cur.execute(f'''
+select * from
+(select id from student
+
+except
+
 select r4.student_id from
 (select student_subj.student_id,count(student_subj.subj_id) from
 student_subj,req_subj
@@ -341,7 +346,8 @@ where student_subj.subj_id = req_subj.subj_id
 group by student_id
 order by student_id)
 as r4
-where r4.count <> (select count(*) from req_subj);
+where r4.count = (select count(*) from req_subj)) as t
+order by id;
     ''')
     rows = cur.fetchall()
     print("Students with not all required subjs selected")

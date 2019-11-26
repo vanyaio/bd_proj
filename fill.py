@@ -321,8 +321,8 @@ def fill_data(from_conf):
 
 if __name__ == "__main__":
     #  tables_create()
-    fill_data(from_conf = False)
-    #  fill_data(from_conf = True)
+    #  fill_data(from_conf = False)
+    fill_data(from_conf = True)
     students_not_allowed_for_rsrv()
     students_with_rer_not_assigned_rsrv()
     students_with_low_grades_not_assigned_rsrv()
